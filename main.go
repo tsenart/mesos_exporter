@@ -31,27 +31,27 @@ var (
 var (
 	variableLabels = []string{"task", "slave", "framework_id"}
 
-	cpuLimitDesc = prometheus.NewDesc(
+	taskCPULimitDesc = prometheus.NewDesc(
 		"mesos_task_cpu_limit",
 		"Fractional CPU limit.",
 		variableLabels, nil,
 	)
-	cpuSysDesc = prometheus.NewDesc(
+	taskCPUSysDesc = prometheus.NewDesc(
 		"mesos_task_cpu_system_seconds_total",
 		"Cumulative system CPU time in seconds.",
 		variableLabels, nil,
 	)
-	cpuUsrDesc = prometheus.NewDesc(
+	taskCPUUsrDesc = prometheus.NewDesc(
 		"mesos_task_cpu_user_seconds_total",
 		"Cumulative user CPU time in seconds.",
 		variableLabels, nil,
 	)
-	memLimitDesc = prometheus.NewDesc(
+	taskMemLimitDesc = prometheus.NewDesc(
 		"mesos_task_memory_limit_bytes",
 		"Task memory limit in bytes.",
 		variableLabels, nil,
 	)
-	memRssDesc = prometheus.NewDesc(
+	taskMemRssDesc = prometheus.NewDesc(
 		"mesos_task_memory_rss_bytes",
 		"Task memory RSS usage in bytes.",
 		variableLabels, nil,
@@ -160,31 +160,31 @@ func (e *periodicExporter) fetch(urlChan <-chan string, metricsChan chan<- prome
 
 		for _, stat := range stats {
 			metricsChan <- prometheus.MustNewConstMetric(
-				cpuLimitDesc,
+				taskCPULimitDesc,
 				prometheus.GaugeValue,
 				float64(stat.Statistics.CpusLimit),
 				stat.Source, host, stat.FrameworkId,
 			)
 			metricsChan <- prometheus.MustNewConstMetric(
-				cpuSysDesc,
+				taskCPUSysDesc,
 				prometheus.CounterValue,
 				float64(stat.Statistics.CpusSystemTimeSecs),
 				stat.Source, host, stat.FrameworkId,
 			)
 			metricsChan <- prometheus.MustNewConstMetric(
-				cpuUsrDesc,
+				taskCPUUsrDesc,
 				prometheus.CounterValue,
 				float64(stat.Statistics.CpusUserTimeSecs),
 				stat.Source, host, stat.FrameworkId,
 			)
 			metricsChan <- prometheus.MustNewConstMetric(
-				memLimitDesc,
+				taskMemLimitDesc,
 				prometheus.GaugeValue,
 				float64(stat.Statistics.MemLimitBytes),
 				stat.Source, host, stat.FrameworkId,
 			)
 			metricsChan <- prometheus.MustNewConstMetric(
-				memRssDesc,
+				taskMemRssDesc,
 				prometheus.GaugeValue,
 				float64(stat.Statistics.MemRssBytes),
 				stat.Source, host, stat.FrameworkId,
