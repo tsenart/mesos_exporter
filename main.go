@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/antonlindstrom/mesos_stats"
+	"github.com/mesos/mesos-go/upid"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/log"
 )
@@ -301,14 +302,17 @@ func (e *periodicExporter) updateSlaves() {
 	var slaveURLs []string
 	for _, slave := range req.Slaves {
 		if slave.Active {
-			// Extract slave port from pid
-			_, port, err := net.SplitHostPort(slave.Pid)
-			if err != nil {
-				port = "5051"
-			}
-			url := fmt.Sprintf("http://%s:%s", slave.Hostname, port)
+			var host, port string
 
-			slaveURLs = append(slaveURLs, url)
+			pid, err := upid.Parse(slave.Pid)
+			if err != nil {
+				log.Printf("failed to parse slave pid %q: %s", slave.Pid, err)
+				host, port = slave.Hostname, "5051"
+			} else {
+				host, port = pid.Host, pid.Port
+			}
+
+			slaveURLs = append(slaveURLs, fmt.Sprintf("http://%s:%s", host, port))
 		}
 	}
 
